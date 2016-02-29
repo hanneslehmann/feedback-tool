@@ -9,11 +9,13 @@ var path = require('path'),
     browserify = require('gulp-browserify'),
     uglify = require('gulp-uglify'),
     rename = require("gulp-rename"),
-    babel = require("gulp-babel");
+    babel = require("gulp-babel"),
+    stringify = require('stringify');
 
 var paths = {
     js: ['./src/**/*.js'],
-    less: ['./style/**/*.less']
+    less: ['./style/**/*.less'],
+    templates: ['./templates/**/*.html']
 };
 
 // LESS/CSS section.
@@ -26,12 +28,18 @@ gulp.task('css', function () {
         .pipe(minifyCSS({keepBreaks: false}))
         .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest('./dist'));
+
+    // Copy images in styles directory that the stylesheets will probably need.
+    gulp.src('./style/*.{ttf,woff,eof,svg,png,jpg,jpeg}')
+        .pipe(gulp.dest('./dist'));
 });
 
 // JS section.
 gulp.task('js', function() {
     gulp.src('./src/feedback.js')
-        .pipe(browserify())
+        .pipe(browserify({
+            transform: stringify({ extensions: ['.html'], minify: true })
+        }))
         .pipe(babel())
         .pipe(gulp.dest('./dist'))
         .pipe(uglify())
@@ -43,6 +51,7 @@ gulp.task('js', function() {
 gulp.task('watchers', function () {
     gulp.watch(paths.less, ['css']);
     gulp.watch(paths.js, ['js']);
+    gulp.watch(paths.templates, ['js']);
 });
 
 gulp.task('default', ['css', 'js', 'watchers']);
