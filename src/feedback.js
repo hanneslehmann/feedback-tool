@@ -309,7 +309,7 @@
                                     }
                                 });
 
-                                if (e.type == 'click' && e.pageX == rect.startX && e.pageY == rect.startY) {
+                                if (e.type == 'click' && Math.round(e.pageX) == Math.round(rect.startX) && Math.round(e.pageY) == Math.round(rect.startY)) {
                                     $('#feedback-helpers').append('<div class="feedback-helper" data-highlight-id="' + hidx + '" data-type="' + dtype + '" data-time="' + Date.now() + '" style="position:absolute;top:' + _y + 'px;left:' + _x + 'px;width:' + _w + 'px;height:' + _h + 'px;z-index:30000;"></div>');
                                     highlighted.push(hidx);
                                     ++hidx;
