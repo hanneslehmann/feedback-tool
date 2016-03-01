@@ -16,8 +16,7 @@ Init plugin:
 ```html
     <script type="text/javascript">
         $.feedback({
-            ajaxURL: 'http://test.url.com/feedback',
-            html2canvasURL: 'js/html2canvas.js'
+            ajaxURL: 'http://test.url.com/feedback'
         });
     </script>
 ```
@@ -25,8 +24,7 @@ Init plugin:
 ## Requirements
 
 * jQuery
-* html2canvas
-    
+
 ## Compatibility
 
 Pretty much it should be working on any browser with `canvas` support. Browsers with no canvas support won't display the feedback button.
@@ -124,10 +122,6 @@ Sets the type of corner created, when two lines meet.
 Sets border of the highlighted area.
 
 `Default: 3`
-
-### html2canvasURL (String)
-
-The URL where the plugin can download html2canvas.js from.
 
 `Default: html2canvas.js`
 
