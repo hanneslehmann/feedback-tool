@@ -3,6 +3,8 @@
 // Licensed under the MIT license.
 // Version 2.0
 
+require('html2canvas/dist/html2canvas');
+
 (function ($) {
 
     $.feedback = function (options) {
@@ -22,7 +24,6 @@
             shadowBlur: 10,
             lineJoin: 'bevel',
             lineWidth: 3,
-            html2canvasURL: 'html2canvas.js',
             feedbackButton: '.feedback-btn',
             showDescriptionModal: true,
             isDraggable: true,
@@ -51,11 +52,6 @@
             $(document).on('click', settings.feedbackButton, function () {
                 if (isFeedbackButtonNative) {
                     $(this).hide();
-                }
-                if (!_html2canvas) {
-                    $.getScript(settings.html2canvasURL, function () {
-                        _html2canvas = true;
-                    });
                 }
                 var canDraw = false,
                     img = '',
