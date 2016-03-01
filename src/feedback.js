@@ -3,7 +3,7 @@
 // Licensed under the MIT license.
 // Version 2.0
 
-require('html2canvas/dist/html2canvas');
+var html2canvas = require('html2canvas/dist/html2canvas');
 
 (function ($) {
 
