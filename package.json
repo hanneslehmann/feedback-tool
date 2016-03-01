@@ -1,6 +1,6 @@
 {
   "name": "feedback-tool",
-  "version": "0.5.1-alpha1",
+  "version": "0.5.1-alpha2",
   "description": "Website feedback tool.",
   "main": "index.js",
   "scripts": {
