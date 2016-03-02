@@ -3,7 +3,9 @@
 // Licensed under the MIT license.
 // Version 2.0
 
-var html2canvas = require('html2canvas/dist/html2canvas');
+let html2canvas = require('html2canvas/dist/html2canvas');
+let utility = require('./utility');
+let EventHandler = utility .EventHandler;
 
 (function ($) {
 
@@ -45,6 +47,8 @@ var html2canvas = require('html2canvas/dist/html2canvas');
         var supportedBrowser = !!window.HTMLCanvasElement;
         var isFeedbackButtonNative = settings.feedbackButton == '.feedback-btn';
         var _html2canvas = false;
+        // Old code have undeclared global, ugly as hell.
+        let moduleStyle, canvasAttr, _top, _left, _bottom, _right, rect, drag, highlight, post, dtype, ignore, _canvas, _ctx, canDraw;
         if (supportedBrowser) {
             if (isFeedbackButtonNative) {
                 $('body').append('<button class="feedback-btn feedback-btn-gray">' + settings.initButtonText + '</button>');
@@ -63,9 +67,12 @@ var html2canvas = require('html2canvas/dist/html2canvas');
                     tpl += settings.tpl.description;
                 }
 
-                tpl += settings.tpl.highlighter + settings.tpl.overview + '<canvas id="feedback-canvas"></canvas><div id="feedback-helpers"></div><input id="feedback-note" name="feedback-note" type="hidden"></div>';
+                tpl +=  settings.tpl.highlighter + settings.tpl.overview + '<canvas id="feedback-canvas"></canvas><div id="feedback-helpers"></div><input id="feedback-note" name="feedback-note" type="hidden"></div>';
 
                 $('body').append(tpl);
+
+                let feedback_highlighter_event_handler = new EventHandler($('#feedback-highlighter').get(0));
+                let feedback_highlighter_parent_event_handler = new EventHandler($('#feedback-highlighter').get(0).parentNode);
 
                 moduleStyle = {
                     'position': 'absolute',
@@ -90,17 +97,22 @@ var html2canvas = require('html2canvas/dist/html2canvas');
                 }
 
                 if (settings.isDraggable) {
-                    $('#feedback-highlighter').on('mousedown', function (e) {
-                        var $d = $(this).addClass('feedback-draggable'),
+                    let feedback_highlighter_move_handler = null;
+                    feedback_highlighter_event_handler.on_pointer_events(e => {
+                        let point = e.touches ? e.touches[0] : e;
+                        var $d = $("#feedback-highlighter").addClass('feedback-draggable'),
                             drag_h = $d.outerHeight(),
                             drag_w = $d.outerWidth(),
-                            pos_y = $d.offset().top + drag_h - e.pageY,
-                            pos_x = $d.offset().left + drag_w - e.pageX;
-                        $d.css('z-index', 40000).parents().on('mousemove', function (e) {
-                            _top = e.pageY + pos_y - drag_h;
-                            _left = e.pageX + pos_x - drag_w;
-                            _bottom = drag_h - e.pageY;
-                            _right = drag_w - e.pageX;
+                            pos_y = $d.offset().top + drag_h - point.pageY,
+                            pos_x = $d.offset().left + drag_w - point.pageX;
+                        $d.css('z-index', 40000);
+
+                        feedback_highlighter_move_handler = function (e) {
+                            let point = e.touches ? e.touches[0] : e;
+                            _top = point.pageY + pos_y - drag_h;
+                            _left = point.pageX + pos_x - drag_w;
+                            _bottom = drag_h - point.pageY;
+                            _right = drag_w - point.pageX;
 
                             if (_left < 0) _left = 0;
                             if (_top < 0) _top = 0;
@@ -119,12 +131,14 @@ var html2canvas = require('html2canvas/dist/html2canvas');
                             }).on("mouseup", function () {
                                 $(this).removeClass('feedback-draggable');
                             });
-                        });
+                        };
+
+                        feedback_highlighter_parent_event_handler.on_pointer_events(feedback_highlighter_move_handler, 'move');
                         e.preventDefault();
-                    }).on('mouseup', function () {
-                        $(this).removeClass('feedback-draggable');
-                        $(this).parents().off('mousemove mousedown');
-                    });
+                    }, 'down').on_pointer_events(e => {
+                        $("#feedback-highlighter").removeClass('feedback-draggable');
+                        feedback_highlighter_parent_event_handler.off_pointer_events(feedback_highlighter_move_handler, 'move');
+                    }, 'up');
                 }
 
                 var ctx = $('#feedback-canvas')[0].getContext('2d');
@@ -464,6 +478,13 @@ var html2canvas = require('html2canvas/dist/html2canvas');
                             if (settings.showDescriptionModal) {
                                 $('#feedback-canvas-tmp').remove();
                                 $('#feedback-overview').show();
+                                if (!utility.isMobile) {
+                                    $('#feedback-overview').toggleClass('feedback-desktop', true);
+                                    $('#feedback-overview').toggleClass('feedback-mobile', false);
+                                } else {
+                                    $('#feedback-overview').toggleClass('feedback-desktop', false);
+                                    $('#feedback-overview').toggleClass('feedback-mobile', true);
+                                }
                                 $('#feedback-overview-description-text>textarea').remove();
                                 $('#feedback-overview-screenshot>img').remove();
                                 $('<textarea id="feedback-overview-note">' + $('#feedback-note').val() + '</textarea>').insertAfter('#feedback-overview-description-text h3:eq(0)');
