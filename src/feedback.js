@@ -13,8 +13,9 @@ let EventHandler = utility .EventHandler;
 
         var settings = $.extend({
             ajaxURL: '',
+            postDetails: undefined,
             postBrowserInfo: true,
-            postHTML: true,
+            postHTML: false,
             postURL: true,
             proxy: undefined,
             letterRendering: false,
@@ -171,6 +172,10 @@ let EventHandler = utility .EventHandler;
                 if (settings.postURL) {
                     post.url = document.URL;
                     $('#feedback-page-info').show();
+                }
+
+                if (settings.postDetails) {
+                    post.details = settings.postDetails;
                 }
 
                 if (settings.postHTML) {
